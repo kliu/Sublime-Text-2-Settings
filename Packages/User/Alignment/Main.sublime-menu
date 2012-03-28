@@ -1,0 +1,21 @@
+[
+    {
+        "caption": "Tools",
+        "id": "tools",
+        "children":
+        [
+            {
+                "caption": "Packages",
+                "id": "packages",
+                "children":
+                [
+                    {
+                        "caption": "Alignment",
+                        "id": "alignment",
+                        "command": "alignment"
+                    }
+                ]
+            }
+        ]
+    }
+]

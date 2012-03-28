@@ -1,0 +1,15 @@
+{
+	"color_scheme": "Packages/Color Scheme - Default/Kyle_Solarized (light).tmTheme",
+	"font_face": "Meslo LG S DZ",
+	"font_size": 14.0,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"open_files_in_new_window": false,
+	"theme": "Soda Light.sublime-theme",
+	"translate_tabs_to_spaces": true,
+	"trim_trailing_white_space_on_save": true,
+	"use_tab_stops": true,
+	"word_wrap": false
+}
