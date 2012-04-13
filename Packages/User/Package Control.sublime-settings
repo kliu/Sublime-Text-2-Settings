@@ -1,5 +1,5 @@
 {
-	"auto_upgrade_last_run": 1333004206,
+	"auto_upgrade_last_run": 1334307314,
 	"installed_packages":
 	[
 		"Alignment",
@@ -8,6 +8,7 @@
 		"HexViewer",
 		"JsFormat",
 		"Markdown Preview",
+		"Nodejs",
 		"Package Control",
 		"Tag",
 		"Terminal",
