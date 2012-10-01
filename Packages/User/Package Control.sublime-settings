@@ -1,5 +1,5 @@
 {
-	"auto_upgrade_last_run": 1337260733,
+	"auto_upgrade_last_run": 1349010161,
 	"installed_packages":
 	[
 		"Alignment",
@@ -10,6 +10,7 @@
 		"Markdown Preview",
 		"Nodejs",
 		"Package Control",
+		"StringEncode",
 		"Tag",
 		"Terminal",
 		"Theme - Soda"

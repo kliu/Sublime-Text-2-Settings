@@ -192,6 +192,18 @@ class TagLintThread(threading.Thread):
 			content += "...".join(tmp)
 			i += 1
 
+		unparseable = content.split('/*')
+		content = unparseable.pop(0)
+		l = len(unparseable)
+		i = 0
+		while i < l:
+			tmp = unparseable[i].split('*/')
+			content += '..'
+			content += len(tmp.pop(0))*'.'
+			content += '..'
+			content += "..".join(tmp)
+			i += 1
+
 		# script
 		unparseable = content.split('<script')
 		content = unparseable.pop(0)
@@ -231,7 +243,7 @@ class TagLintThread(threading.Thread):
 		first_at = 0
 		while i < lenght:
 			tag = Tag.name(data[i], False, is_xml)
-			if tag and tag != 'html' and tag != 'body':
+			if tag and tag != 'html' and tag != 'body' and tag != 'head':
 				# if opening tag, then check if closing tag exists
 				if not Tag.is_closing(data[i]):
 					# print tag+' is opening '
@@ -272,7 +284,7 @@ class TagLintThread(threading.Thread):
 			lenght = len(data)-1
 			while i < lenght:
 				tag = Tag.name(data[i], False, is_xml)
-				if tag and tag != 'html' and tag != 'body':
+				if tag and tag != 'html' and tag != 'body' and tag != 'head':
 					# if closing tag, check if opening tag exists
 					if Tag.is_closing(data[i]):
 						# print tag+' is closing '
