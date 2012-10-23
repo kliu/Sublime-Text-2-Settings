@@ -1,0 +1,82 @@
+[
+  {"id": "side-bar-files-open-with",
+      "children":
+      [
+
+          // Marked
+          {
+              "caption": "Marked",
+              "id": "side-bar-files-open-with-marked",
+              "command": "side_bar_files_open_with",
+              "args": {
+                                    "paths": [],
+                                    "application": "Marked.app",
+                                    "extensions":"markdown|md|mdown|mkd|mkdn|txt"  //any file with these extensions
+                              }
+          },
+          {"caption":"-"},
+          //Photoshop
+          {
+              "caption": "Photoshop",
+              "id": "side-bar-files-open-with-photoshop",
+
+              "command": "side_bar_files_open_with",
+              "args": {
+                                  "paths": [],
+                                  "application": "Adobe Photoshop CS5.app",
+                                  "extensions":"psd|png|jpg|jpeg"  //any file with these extensions
+                              }
+          },
+          // Preview
+            {
+                "caption": "Preview",
+                "id": "side-bar-files-open-with-preview",
+                "command": "side_bar_files_open_with",
+                "args": {
+                                    "paths": [],
+                                    "application": "Preview.app",
+                                    "extensions":"psd|png|jpg|jpeg|gif"  //any file with these extensions
+                                }
+            },
+          //separator
+          {"caption":"-"},
+          //Browsers
+          {
+              "caption": "Chrome",
+              "id": "side-bar-files-open-with-chrome",
+
+              "command": "side_bar_files_open_with",
+              "args": {
+                                  "paths": [],
+                                  "application": "Google Chrome.app",
+                                  "extensions":"html|php" //any file with extension
+                              }
+          },
+
+          {
+                "caption": "Firefox",
+                "id": "side-bar-files-open-with-firefox",
+                "command": "side_bar_files_open_with",
+                "args": {
+                                    "paths": [],
+                                    "application": "Firefox.app",
+                                    "extensions":"html|php"  //any file with these extensions
+                                }
+            },
+
+          {"caption":"-"},
+           // XCode
+            {
+                "caption": "XCode",
+                "id": "side-bar-files-open-with-textmate",
+                "command": "side_bar_files_open_with",
+                "args": {
+                                    "paths": [],
+                                    "application": "XCode.app",
+                                    "extensions":".*"  //any file with these extensions
+                                }
+            }
+
+      ]
+  }
+]

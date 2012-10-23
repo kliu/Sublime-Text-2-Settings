@@ -1,11 +1,53 @@
 [
-    { "keys": ["super+k", "super+g"], "command": "gist_list" },
-    { "keys": ["super+."], "command": "auto_complete" },
-    { "keys": ["super+."], "command": "replace_completion_with_auto_complete", "context":
-        [
-            { "key": "last_command", "operator": "equal", "operand": "insert_best_completion" },
-            { "key": "auto_complete_visible", "operator": "equal", "operand": false },
-            { "key": "setting.tab_completion", "operator": "equal", "operand": true }
-        ]
-    }
+  { "keys": ["super+k", "super+g"], "command": "gist_list" },
+  { "keys": ["super+."], "command": "auto_complete" },
+  { "keys": ["super+."], "command": "replace_completion_with_auto_complete", "context":
+      [
+          { "key": "last_command", "operator": "equal", "operand": "insert_best_completion" },
+          { "key": "auto_complete_visible", "operator": "equal", "operand": false },
+          { "key": "setting.tab_completion", "operator": "equal", "operand": true }
+      ]
+  },
+  { "keys": ["super+,"], "command": "noop" },
+
+  { "keys": ["super+shift+h"], "command": "goto_documentation" },
+
+  // Go
+  {
+    "keys": ["super+."],
+    "command": "auto_complete",
+    "args": {"disable_auto_insert": true, "api_completions_only": true, "next_completion_if_showing": false},
+    "context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
+  },
+  {
+    "keys": ["super+shift+.", "super+shift+p"],
+    "command": "gs_palette",
+    "args": {"palette": "imports", "direct": true},
+    "context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
+  },
+  {
+    "keys": ["super+shift+.", "super+shift+."],
+    "command": "show_overlay",
+    "args": {"overlay": "command_palette", "text": "GoSublime: "}
+  },
+  {
+    "keys": ["super+shift+.", "super+shift+/"],
+    "command": "gs_commander_open"
+  },
+  {
+    "keys": ["super+."],
+    "command": "auto_complete",
+    "args": {"disable_auto_insert": true, "api_completions_only": true, "next_completion_if_showing": false},
+    "context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+  },
+  {
+    "keys": ["enter"],
+    "command": "gs_commander_exec",
+    "context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+  },
+
+  // Markdown Preview
+
+  { "keys": ["ctrl+alt+p"], "command": "markdown_preview", "args": { "target": "browser"} }
+
 ]

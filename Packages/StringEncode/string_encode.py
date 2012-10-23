@@ -31,6 +31,7 @@ html_escape_table = {
 xml_escape_table = {
     u"\"": "&quot;", u"'": "&#039;", u"<": "&lt;", u">": "&gt;"
 }
+html_reserved_list = (u"\"", u"'", u"<", u">", u"&")
 
 
 class HtmlEntitizeCommand(StringEncode):
@@ -51,6 +52,38 @@ class HtmlEntitizeCommand(StringEncode):
 class HtmlDeentitizeCommand(StringEncode):
     def encode(self, text):
         for k in html_escape_table:
+            v = html_escape_table[k]
+            text = text.replace(v, k)
+        while re.search('&#[xX][a-fA-F0-9]+;', text):
+            match = re.search('&#[xX]([a-fA-F0-9]+);', text)
+            text = text.replace(match.group(0), unichr(int('0x' + match.group(1), 16)))
+        text = text.replace('&amp;', '&')
+        return text
+
+
+class SafeHtmlEntitizeCommand(StringEncode):
+    def encode(self, text):
+        for k in html_escape_table:
+            # skip HTML reserved characters
+            if k in html_reserved_list:
+                continue
+            v = html_escape_table[k]
+            text = text.replace(k, v)
+        ret = ''
+        for i, c in enumerate(text):
+            if ord(c) > 127:
+                ret += hex(ord(c)).replace('0x', '&#x') + ';'
+            else:
+                ret += c
+        return ret
+
+
+class SafeHtmlDeentitizeCommand(StringEncode):
+    def encode(self, text):
+        for k in html_escape_table:
+            # skip HTML reserved characters
+            if k in html_reserved_list:
+                continue
             v = html_escape_table[k]
             text = text.replace(v, k)
         while re.search('&#[xX][a-fA-F0-9]+;', text):

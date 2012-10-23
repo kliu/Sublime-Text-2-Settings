@@ -8,6 +8,14 @@
         "command": "html_deentitize"
     },
     {
+        "caption": "StringEncode: Safe HTML Entitize",
+        "command": "safe_html_entitize"
+    },
+    {
+        "caption": "StringEncode: Safe HTML Deentitize",
+        "command": "safe_html_deentitize"
+    },
+    {
         "caption": "StringEncode: URL Encode",
         "command": "url_encode"
     },

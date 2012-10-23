@@ -1,0 +1,7 @@
+{
+  "env": {
+    "PATH": "$HOME/Develop/go/bin:$PATH"
+  },
+
+  "shell": ["/bin/bash", "--login", "-c", "$CMD"]
+}
