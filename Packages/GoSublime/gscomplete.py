@@ -4,8 +4,7 @@ import json
 import os
 import re
 import gscommon as gs
-import gsshell
-import gsbundle
+import mg9
 from os.path import basename
 from os.path import dirname
 
@@ -140,58 +139,68 @@ class GoSublime(sublime_plugin.EventListener):
 		return r.end() if r and r.end() < end else -1
 
 	def complete(self, fn, offset, src, func_name_only):
-		global last_gopath
-		gopath = gs.env().get('GOPATH')
-		if gopath and gopath != last_gopath:
-			out, _, _ = gsshell.run(cmd=['go', 'env', 'GOOS', 'GOARCH'])
-			vars = out.strip().split()
-			if len(vars) == 2:
-				last_gopath = gopath
-				libpath =  os.path.join(gopath, 'pkg', '_'.join(vars))
-				gsshell.run(cmd=['gocode', 'set', 'lib-path', libpath], cwd=gsbundle.BUNDLE_GOBIN)
-
 		comps = []
-		cmd = gs.setting('gocode_cmd', 'gocode')
-		offset = 'c%s' % offset
-		args = [cmd, "-f=json", "autocomplete", fn, offset]
-		js, err, _ = gsshell.run(cmd=args, input=src)
+		autocomplete_tests = gs.setting('autocomplete_tests', False)
+		autocomplete_closures = gs.setting('autocomplete_closures', False)
+		ents, err = mg9.complete(fn, src, offset)
 		if err:
 			gs.notice(DOMAIN, err)
-		else:
-			try:
-				js = json.loads(js)
-				if js and js[1]:
-					for ent in js[1]:
-						tn = ent['type']
-						cn = ent['class']
-						nm = ent['name']
-						sfx = self.typeclass_prefix(cn, tn)
-						if cn == 'func':
-							if nm in ('main', 'init'):
-								continue
-							act = gs.setting('autocomplete_tests', False)
-							if not act and nm.startswith(('Test', 'Benchmark', 'Example')):
-								continue
 
-							params, ret = declex(tn)
-							ret = ret.strip('() ')
-							if func_name_only:
-								a = nm
-							else:
-								a = []
-								for i, p in enumerate(params):
-									n, t = p
-									if t.startswith('...'):
-										n = '...'
-									a.append('${%d:%s}' % (i+1, n))
-								a = '%s(%s)' % (nm, ', '.join(a))
-							comps.append(('%s\t%s %s' % (nm, ret, sfx), a))
-						elif cn != 'PANIC':
-							comps.append(('%s\t%s %s' % (nm, tn, sfx), nm))
-			except KeyError as e:
-				gs.notice(DOMAIN, 'Error while running gocode, possibly malformed data returned: %s' % e)
-			except ValueError as e:
-				gs.notice(DOMAIN, "Error while decoding gocode output: %s" % e)
+		for ent in ents:
+			tn = ent['type']
+			cn = ent['class']
+			nm = ent['name']
+			is_func = (cn == 'func')
+			is_func_type = (cn == 'type' and tn.startswith('func('))
+
+			if is_func:
+				if nm in ('main', 'init'):
+					continue
+
+				if not autocomplete_tests and nm.startswith(('Test', 'Benchmark', 'Example')):
+					continue
+
+			if is_func or is_func_type:
+				s_sfx = u'\u0282'
+				t_sfx = gs.CLASS_PREFIXES.get('type', '')
+				f_sfx = gs.CLASS_PREFIXES.get('func', '')
+				params, ret = declex(tn)
+				decl = []
+				for i, p in enumerate(params):
+					n, t = p
+					if t.startswith('...'):
+						n = '...'
+					decl.append('${%d:%s}' % (i+1, n))
+				decl = ', '.join(decl)
+				ret = ret.strip('() ')
+
+				if is_func:
+					if func_name_only:
+						comps.append((
+							'%s\t%s %s' % (nm, ret, f_sfx),
+							nm,
+						))
+					else:
+						comps.append((
+							'%s\t%s %s' % (nm, ret, f_sfx),
+							'%s(%s)' % (nm, decl),
+						))
+				else:
+					comps.append((
+						'%s\t%s %s' % (nm, tn, t_sfx),
+						nm,
+					))
+
+					if autocomplete_closures:
+						comps.append((
+							'%s {}\tfunc() {...} %s' % (nm, s_sfx),
+							'%s {\n\t${0}\n}' % tn,
+						))
+			elif cn != 'PANIC':
+				comps.append((
+					'%s\t%s %s' % (nm, tn, self.typeclass_prefix(cn, tn)),
+					nm,
+				))
 		return comps
 
 	def typeclass_prefix(self, typeclass, typename):
@@ -239,7 +248,7 @@ class GsShowCallTip(sublime_plugin.TextCommand):
 
 	def run(self, edit):
 		view = self.view
-		pt = view.sel()[0].begin()
+		pt = gs.sel(view).begin()
 		if view.substr(sublime.Region(pt-1, pt)) == '(':
 			depth = 1
 		else:
@@ -330,38 +339,27 @@ class GsShowCallTip(sublime_plugin.TextCommand):
 			return
 
 		offset = (line_start + m.end())
-		coffset = 'c%d' % offset
 		sel = m.group(1)
 		name = m.group(2)
 		candidates = []
 		src = view.substr(sublime.Region(0, view.size()))
-		fn = view.file_name() or '<stdin>'
-		cmd = gs.setting('gocode_cmd', 'gocode')
-		args = [cmd, "-f=json", "autocomplete", fn, coffset]
-		js, err, _ = gs.runcmd(args, src)
+		fn = view.file_name()
+		candidates, err = mg9.complete(fn, src, offset)
 		if err:
 			gs.notice(DOMAIN, err)
 		else:
-			try:
-				js = json.loads(js)
-				if js and js[1]:
-					candidates = js[1]
-			except:
-				pass
+			c = {}
+			for i in candidates:
+				if i['name'] == name:
+					if c:
+						c = None
+						break
+					c = i
 
-		c = {}
-		for i in candidates:
-			if i['name'] == name:
-				if c:
-					c = None
-					break
-				c = i
+			if not c:
+				self.show_hint('// no candidates found')
+				return
 
-		if not c:
-			self.show_hint('// no candidates found')
-			return
-
-		s = '// %s %s\n%s' % (c['name'], c['class'], c['type'])
-		self.show_hint(s)
-
+			s = '// %s %s\n%s' % (c['name'], c['class'], c['type'])
+			self.show_hint(s)
 

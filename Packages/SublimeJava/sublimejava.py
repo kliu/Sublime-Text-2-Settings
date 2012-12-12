@@ -22,34 +22,14 @@ freely, subject to the following restrictions:
 """
 import sublime
 import sublime_plugin
-import os.path
+import os
 import re
-try:
-    from sublimecompletioncommon import completioncommon
-    reload(completioncommon)
-except:
-    def hack(func):
-        # If there's a sublime.error_message before a window is open
-        # on Windows 7, it appears the main editor window
-        # is never opened...
-        class hackClass:
-            def __init__(self, func):
-                self.func = func
-                self.try_now()
 
-            def try_now(self):
-                if sublime.active_window() == None:
-                    sublime.set_timeout(self.try_now, 500)
-                else:
-                    self.func()
-        hackClass(func)
+from sublimecompletioncommon import completioncommon
+reload(completioncommon)
 
-    def showError():
-        sublime.error_message("""\
-Unfortunately SublimeJava currently can't be installed \
-via Package Control at the moment. Please see http://www.github.com/quarnster/SublimeJava \
-for more details.""")
-    hack(showError)
+import classopener
+reload(classopener)
 
 
 class SublimeJavaDotComplete(completioncommon.CompletionCommonDotComplete):
@@ -69,6 +49,12 @@ class SublimeJavaCompletion(completioncommon.CompletionCommon):
             (re.compile(r"\[J([,)}]|$)"), r"long[]\1"),
             (re.compile(r"\[D([,)}]|$)"), r"double[]\1"),
             (re.compile(r"\[\L?([\w\./]+)(;)?"), r"\1[]")]
+
+    def show_error(self, msg):
+        if self.get_setting("sublimejava_no_visual_errors", False):
+            print msg
+        else:
+            sublime.error_message(msg + "\n\nDisable visual error message dialogues with setting:\nsublimejava_no_visual_errors: true")
 
     def get_packages(self, data, thispackage, type):
         packages = re.findall(r"(?:^|\n)[ \t]*import[ \t]+(.*);", data)
@@ -102,7 +88,7 @@ class SublimeJavaCompletion(completioncommon.CompletionCommon):
         classpath = newclasspath
         classpath.insert(0, ".")
         classpath = os.pathsep.join(classpath)
-        return "java -classpath %s SublimeJava" % classpath
+        return "java -classpath \"%s\" SublimeJava" % classpath
 
     def is_supported_language(self, view):
         if view.is_scratch() or not self.get_setting("sublimejava_enabled", True):
@@ -129,6 +115,22 @@ class SublimeJavaCompletion(completioncommon.CompletionCommon):
             ret.append((self.fixnames(display), self.fixnames(insert)))
         return super(SublimeJavaCompletion, self).return_completions(ret)
 
+    def get_class_under_cursor(self):
+        view = sublime.active_window().active_view()
+        data = view.substr(sublime.Region(0, view.size()))
+        word = view.substr(view.word(view.sel()[0].begin()))
+        return self.find_absolute_of_type(data, data, word)
+
+    def get_possible_imports(self, classname):
+        imports = []
+
+        if classname is not None:
+            stdout = self.run_completion("-possibleimports;;--;;%s" % classname)
+            imports = sorted(stdout.split("\n")[:-1])
+
+        return imports
+
+
 comp = SublimeJavaCompletion()
 
 
@@ -144,3 +146,75 @@ class SublimeJava(sublime_plugin.EventListener):
             return comp.is_supported_language(view)
         else:
             return comp.on_query_context(view, key, operator, operand, match_all)
+
+
+MSG_NO_CLASSES_FOUND = "No classes found to import for name %s."
+MSG_ALREADY_IMPORTED = "Class %s has either already been imported, is \
+in the current package, or is in the default package."
+
+RE_IMPORT = "import( static)? ([\w\.]+)\.([\w]+|\*);"
+RE_PACKAGE = "package ([\w]+.)*\w+;"
+
+
+class ImportJavaClassCommand(sublime_plugin.TextCommand):
+
+    def run(self, edit):
+        view = self.view
+        classname = view.substr(view.word(view.sel()[0].begin()))
+
+        if comp.get_class_under_cursor():
+            comp.show_error(MSG_ALREADY_IMPORTED % classname)
+            return
+
+        imports = comp.get_possible_imports(classname)
+
+        def do_import(index):
+            if index != -1:
+                self._insert_import(imports[index], edit)
+
+        if len(imports) > 0:
+            view.window().show_quick_panel(imports, do_import)
+        else:
+            comp.show_error(MSG_NO_CLASSES_FOUND % classname)
+
+    def _insert_import(self, full_classname, edit):
+        insert_point = 0
+        newlines_prepend = 0
+        newlines_append = 1
+
+        all_imports_region = self.view.find_all(RE_IMPORT)
+
+        if len(all_imports_region) > 0:
+            insert_point = all_imports_region[-1].b
+            newlines_prepend = 1
+            newlines_append = 0
+        else:
+            package_declaration_region = self.view.find(RE_PACKAGE, 0)
+
+            if package_declaration_region is not None:
+                insert_point = package_declaration_region.b
+                newlines_prepend = 2
+                newlines_append = 0
+
+        import_classname = full_classname.replace("$", ".")
+        import_statement = "%simport %s;%s" % ("\n" * newlines_prepend,
+                                               import_classname,
+                                               "\n" * newlines_append)
+
+        self.view.insert(edit, insert_point, import_statement)
+
+
+class OpenJavaSourceCommand(sublime_plugin.WindowCommand):
+
+    def run(self, under_cursor=False):
+        classopener.JavaSourceOpener(comp,
+                                     self.window.active_view(),
+                                     under_cursor).show()
+
+
+class OpenJavaDocCommand(sublime_plugin.WindowCommand):
+
+    def run(self, under_cursor=False):
+        classopener.JavaDocOpener(comp,
+                                  self.window.active_view(),
+                                  under_cursor).show()

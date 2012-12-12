@@ -1,5 +1,5 @@
 {
-	"auto_upgrade_last_run": 1351000359,
+	"auto_upgrade_last_run": null,
 	"installed_packages":
 	[
 		"Alignment",
@@ -13,7 +13,6 @@
 		"JsFormat",
 		"KeymapManager",
 		"Markdown Preview",
-		"MarkdownEditing",
 		"Marked.app Menu",
 		"Nodejs",
 		"Octopress Snippets",

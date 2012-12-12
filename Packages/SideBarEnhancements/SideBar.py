@@ -40,14 +40,27 @@ def expand_vars(path):
 
 s = sublime.load_settings('Side Bar.sublime-settings')
 
+class SideBarNewFile2Command(sublime_plugin.WindowCommand):
+	def run(self, paths = [], name = ""):
+		import functools
+		self.window.run_command('hide_panel');
+		self.window.show_input_panel("File Name:", name, functools.partial(SideBarNewFileCommand(sublime_plugin.WindowCommand).on_done, paths, True), None, None)
+
 class SideBarNewFileCommand(sublime_plugin.WindowCommand):
 	def run(self, paths = [], name = ""):
 		import functools
 		self.window.run_command('hide_panel');
-		self.window.show_input_panel("File Name:", name, functools.partial(self.on_done, paths), None, None)
+		self.window.show_input_panel("File Name:", name, functools.partial(self.on_done, paths, False), None, None)
 
-	def on_done(self, paths, name):
-		paths = SideBarSelection(paths).getSelectedDirectoriesOrDirnames()
+	def on_done(self, paths, relative_to_project, name):
+		if relative_to_project and s.get('new_files_relative_to_project_root'):
+			paths = SideBarProject().getDirectories()
+			if paths:
+				paths = [SideBarItem(paths[0], False)]
+			if not paths:
+				paths = SideBarSelection(paths).getSelectedDirectoriesOrDirnames()
+		else:
+			paths = SideBarSelection(paths).getSelectedDirectoriesOrDirnames()
 		if not paths:
 			paths = SideBarProject().getDirectories()
 			if paths:
@@ -620,6 +633,25 @@ class SideBarCopyPathCommand(sublime_plugin.WindowCommand):
 	def is_enabled(self, paths = []):
 		return SideBarSelection(paths).len() > 0
 
+class SideBarCopyDirPathCommand(sublime_plugin.WindowCommand):
+	def run(self, paths = []):
+		items = []
+		for item in SideBarSelection(paths).getSelectedDirectoriesOrDirnames():
+			items.append(item.path())
+
+		if len(items) > 0:
+			sublime.set_clipboard("\n".join(items));
+			if len(items) > 1 :
+				sublime.status_message("Items copied")
+			else :
+				sublime.status_message("Item copied")
+
+	def is_enabled(self, paths = []):
+		return SideBarSelection(paths).len() > 0
+
+	def is_visible(self, paths =[]):
+		return not s.get('disabled_menuitem_copy_dir_path')
+
 class SideBarCopyPathEncodedCommand(sublime_plugin.WindowCommand):
 	def run(self, paths = []):
 		items = []
@@ -1047,7 +1079,10 @@ class SideBarDeleteCommand(sublime_plugin.WindowCommand):
 		no = []
 		no.append('No');
 		no.append('Cancel the operation.');
-		sublime.set_timeout(lambda:window.show_quick_panel([yes, no], functools.partial(self.on_confirm, paths)), 200);
+		if sublime.platform() == 'osx':
+			sublime.set_timeout(lambda:window.show_quick_panel([yes, no], functools.partial(self.on_confirm, paths)), 200);
+		else:
+			window.show_quick_panel([yes, no], functools.partial(self.on_confirm, paths))
 
 	def on_confirm(self, paths, result):
 		if result != -1:
@@ -1188,12 +1223,18 @@ class SideBarOpenInBrowserCommand(sublime_plugin.WindowCommand):
 				reg_value, reg_type = _winreg.QueryValueEx (aKey, "Local AppData")
 
 				items = [
-					'%HOMEPATH%\AppData\Local\Google\Chrome\Application\chrome.exe'
+					'%HOMEPATH%\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
 
 					,reg_value+'\\Chrome\\Application\\chrome.exe'
 					,'%HOMEPATH%\\Google\\Chrome\\Application\\chrome.exe'
 					,'%PROGRAMFILES%\\Google\\Chrome\\Application\\chrome.exe'
 					,'%PROGRAMFILES(X86)%\\Google\\Chrome\\Application\\chrome.exe'
+					,'%USERPROFILE%\\Local\ Settings\\Application\ Data\\Google\\Chrome\\chrome.exe'
+					,'%HOMEPATH%\\Chromium\\Application\\chrome.exe'
+					,'%PROGRAMFILES%\\Chromium\\Application\\chrome.exe'
+					,'%PROGRAMFILES(X86)%\\Chromium\\Application\\chrome.exe'
+					,'%HOMEPATH%\\Local\ Settings\\Application\ Data\\Google\\Chrome\\Application\\chrome.exe'
+					,'%HOMEPATH%\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe'
 					,'chrome.exe'
 				]
 				commands = ['-new-tab', url]
@@ -1214,21 +1255,28 @@ class SideBarOpenInBrowserCommand(sublime_plugin.WindowCommand):
 				reg_value, reg_type = _winreg.QueryValueEx (aKey, "Local AppData")
 
 				items = [
-					'%HOMEPATH%\AppData\Local\Google\Chrome SxS\Application\chrome.exe'
-
-					, reg_value+'\\Chromium\\Application\\chrome.exe'
-					,'%HOMEPATH%\\Chromium\\Application\\chrome.exe'
-					,'%PROGRAMFILES%\\Chromium\\Application\\chrome.exe'
-					,'%PROGRAMFILES(X86)%\\Chromium\\Application\\chrome.exe'
-					,'%HOMEPATH%\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe'
-					,'chrome.exe'
+					'%HOMEPATH%\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 
 					, reg_value+'\\Chromium\\Application\\chromium.exe'
+					,'%USERPROFILE%\\Local Settings\\Application Data\\Google\\Chrome\\chromium.exe'
+					,'%USERPROFILE%\\Local\ Settings\\Application\ Data\\Google\\Chrome\\chromium.exe'
 					,'%HOMEPATH%\\Chromium\\Application\\chromium.exe'
 					,'%PROGRAMFILES%\\Chromium\\Application\\chromium.exe'
 					,'%PROGRAMFILES(X86)%\\Chromium\\Application\\chromium.exe'
+					,'%HOMEPATH%\\Local Settings\\Application\ Data\\Google\\Chrome\\Application\\chromium.exe'
 					,'%HOMEPATH%\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chromium.exe'
 					,'chromium.exe'
+
+					, reg_value+'\\Chromium\\Application\\chrome.exe'
+					,'%USERPROFILE%\\Local Settings\\Application Data\\Google\\Chrome\\chrome.exe'
+					,'%USERPROFILE%\\Local\ Settings\\Application\ Data\\Google\\Chrome\\chrome.exe'
+					,'%HOMEPATH%\\Chromium\\Application\\chrome.exe'
+					,'%PROGRAMFILES%\\Chromium\\Application\\chrome.exe'
+					,'%PROGRAMFILES(X86)%\\Chromium\\Application\\chrome.exe'
+					,'%HOMEPATH%\\Local\ Settings\\Application\ Data\\Google\\Chrome\\Application\\chrome.exe'
+					,'%HOMEPATH%\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe'
+					,'chrome.exe'
+
 				]
 				commands = ['-new-tab', url]
 			else:

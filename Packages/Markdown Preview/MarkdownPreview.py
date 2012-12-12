@@ -91,10 +91,11 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
         if config_parser and config_parser == 'github':
             sublime.status_message('converting markdown with github API...')
             try:
-                contents = contents.replace('%', '')    # see https://gist.github.com/3742011
+                #contents = contents.replace('%', '')    # see https://gist.github.com/3742011
                 data = json.dumps({"text": contents, "mode": "gfm"})
                 url = "https://api.github.com/markdown"
-                markdown_html = urllib2.urlopen(url, data).read().decode('utf-8')
+                request = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+                markdown_html = urllib2.urlopen(request).read().decode('utf-8')
             except urllib2.HTTPError:
                 sublime.error_message('github API responded in an unfashion way :/')
             except urllib2.URLError:
@@ -105,24 +106,24 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
                 sublime.status_message('converted markdown with github API successfully')
         else:
             # convert the markdown
-            markdown_html = markdown2.markdown(contents, extras=['footnotes', 'toc', 'fenced-code-blocks', 'cuddled-lists', 'code-friendly'])
+            markdown_html = markdown2.markdown(contents, extras=['footnotes', 'toc', 'fenced-code-blocks', 'cuddled-lists'])
             # postprocess the html
             markdown_html = self.postprocessor(markdown_html)
 
         # check if LiveReload ST2 extension installed
         livereload_installed = ('LiveReload' in os.listdir(sublime.packages_path()))
 
-        # build the html
-        html_contents = u'<!DOCTYPE html>'
-        html_contents += '<html><head><meta charset="%s">' % encoding
-        html_contents += self.getCSS()
-        if livereload_installed:
-            html_contents += '<script>document.write(\'<script src="http://\' + (location.host || \'localhost\').split(\':\')[0] + \':35729/livereload.js?snipver=1"></\' + \'script>\')</script>'
-        html_contents += '</head><body>'
-        html_contents += markdown_html
-        html_contents += '</body>'
-
         if target in ['disk', 'browser']:
+            # build the html
+            html_contents = u'<!DOCTYPE html>'
+            html_contents += '<html><head><meta charset="%s">' % encoding
+            html_contents += self.getCSS()
+            if livereload_installed:
+                html_contents += '<script>document.write(\'<script src="http://\' + (location.host || \'localhost\').split(\':\')[0] + \':35729/livereload.js?snipver=1"></\' + \'script>\')</script>'
+            html_contents += '</head><body>'
+            html_contents += markdown_html
+            html_contents += '</body>'
+
             # update output html file
             tmp_fullpath = getTempMarkdownPreviewPath(self.view)
             tmp_html = open(tmp_fullpath, 'w')
@@ -145,6 +146,8 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
                     desktop.open(tmp_fullpath)
                     sublime.status_message('Markdown preview launched in default html viewer')
         elif target == 'sublime':
+            # build the html
+            html_contents = markdown_html
             new_view = self.view.window().new_file()
             new_edit = new_view.begin_edit()
             new_view.insert(new_edit, 0, html_contents)

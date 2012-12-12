@@ -72,7 +72,7 @@ class CompletionCommon(object):
             pass
         return self.get_settings().get(key, default)
 
-    def expand_path(self, value, window=None):
+    def expand_path(self, value, window=None, checkExists=True):
         if window == None:
             # Views can apparently be window less, in most instances getting
             # the active_window will be the right choice (for example when
@@ -89,10 +89,10 @@ class CompletionCommon(object):
             window = sublime.active_window()
 
         get_existing_files = \
-            lambda m: [ path \
+            lambda m: [path \
                 for f in window.folders() \
                 for path in [os.path.join(f, m.group('file'))] \
-                if os.path.exists(path) \
+                if checkExists and os.path.exists(path) or not checkExists
             ]
         value = re.sub(r'\${project_path:(?P<file>[^}]+)}', lambda m: len(get_existing_files(m)) > 0 and get_existing_files(m)[0] or m.group('file'), value)
         value = re.sub(r'\${env:(?P<variable>[^}]+)}', lambda m: os.getenv(m.group('variable')) if os.getenv(m.group('variable')) else "%s_NOT_SET" % m.group('variable'), value)
@@ -105,8 +105,19 @@ class CompletionCommon(object):
     def get_cmd(self):
         return None
 
+    def show_error(self, msg):
+        sublime.error_message(msg)
+
+    def __err_func(self):
+        exc = self.__curr_exception
+        sublime.set_timeout(lambda: self.show_error(exc), 0)
+        self.__curr_exception = None
+
     def error_thread(self):
         try:
+            err_re = re.compile(r"^(Error|Exception)(\s+caught)?:\s+")
+            stack_re = re.compile(r".*\(.*\)$")
+            self.__curr_exception = None
             while True:
                 if self.completion_proc.poll() != None:
                     break
@@ -115,6 +126,13 @@ class CompletionCommon(object):
                     line = line.strip()
                 else:
                     line = ""
+                if err_re.search(line):
+                    self.__curr_exception = line
+                elif self.__curr_exception:
+                    if line != ";;--;;":
+                        self.__curr_exception += "\n\t" + line
+                    else:
+                        self.__err_func()
                 if self.debug:
                     print "stderr: %s" % (line)
         finally:
@@ -213,11 +231,11 @@ class CompletionCommon(object):
             thispackage = re.findall(r"\s*namespace\s+([\w\.]+)\s*{", parsehelp.remove_preprocessing(data), re.MULTILINE)
             thispackage = ".".join(thispackage)
 
-        match = re.search("class %s" % type, full_data)
+        match = re.search(r"class %s(\s|$)" % type, full_data)
         if not match is None:
             # This type is defined in this file so figure out the nesting
             full_data = parsehelp.remove_empty_classes(parsehelp.collapse_brackets(parsehelp.remove_preprocessing(full_data[:match.start()])))
-            regex = re.compile("\s*class\s+([^\\s{]+)")
+            regex = re.compile(r"\s*class\s+([^\s{]+)(?:\s|$)")
             add = ""
             for m in re.finditer(regex, full_data):
                 if len(add):

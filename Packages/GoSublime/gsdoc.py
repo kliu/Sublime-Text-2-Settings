@@ -24,7 +24,7 @@ class GsDocCommand(sublime_plugin.TextCommand):
 		if (not gs.is_go_source_view(view)) or (mode not in ['goto', 'hint']):
 			return
 
-		pt = view.sel()[0].begin()
+		pt = gs.sel(view).begin()
 		src = view.substr(sublime.Region(0, view.size()))
 		def f(docs, err):
 			doc = ''
@@ -228,7 +228,7 @@ def show_pkgfiles(dirname):
 
 	try:
 		dirname = os.path.abspath(dirname)
-		for fn in gs.list_dir_tree(dirname, ext_filter):
+		for fn in gs.list_dir_tree(dirname, ext_filter, gs.setting('fn_exclude_prefixes', [])):
 			name = os.path.relpath(fn, dirname).replace('\\', '/')
 			m[name] = fn
 			ents.append(name)
