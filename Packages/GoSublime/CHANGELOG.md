@@ -1,3 +1,160 @@
+GoSublime Changes
+-----------------
+
+Note: you may need to restart Sublime Text after GoSublime updates
+
+
+## r13.02.09-1
+	*impl 9o `hist` command
+
+## r13.02.08-2
+	* add THANKS.md there are several other donors who weren't added since your donations were
+		done anonymously. I'd like to add you as well :) if you want your name added please let me know
+		either thank you all!
+
+## r13.02.08-1
+	* initial(incomplete) Sublime Text 3 support
+	* gsshell ui and gs_shell command removed
+	* anything that imported or used gs* commands is probably broken
+
+## r13.02.03-3
+	* impl `go share` as 9o command `share`. see ctrl+9 "help" for more details
+
+## r13.02.03-2
+	* add new setting `build_command` to allow changing what command is run when you press ctrl+dot,ctrl+b
+		see the default settings for documentation (ctrl+dot,ctrl+dot "default settings")
+
+## r13.02.03-1
+	* fmt verbs are now highlighted in raw strings
+	* fix race between fmt_save and 9o
+	* allow action'ing (super/ctrl+g only) seletions in 9o
+
+## r13.01.27-2
+	* (by default) only save 9o history if the command was manually executed
+
+## r13.01.27-1
+	* correctly handle hist indexing when there's only one command in the history (last command not recalled on ctrl+dot,ctrl+b)
+
+## r13.01.26-1
+	* fix broken package snippet (inserting blank package name)
+
+## r13.01.25-2
+	* set .go files to use the `GoSublime` syntax definition instead of `Go` as it's more complete
+	* hide GsDoc and 9o sytax definitions from the command palette
+
+## r13.01.25-1
+	* fix 9o command history indexing (caused wrong command to be expanded for ^1, ^2 etc)
+
+## r13.01.24-2
+	* add $HOME/go/bin to $PATH
+
+## r13.01.24-1
+	* add $HOME/bin to $PATH
+
+## r13.01.23-1
+	* fix broken 9o-related keybindings (ctrl+dot,ctrl+r etc.)
+
+## r13.01.22-1
+	* fix missing declarations in unsaved files
+
+## r13.01.21-1
+	**majour refactoring - watch out for bugs**
+
+	* fix handling of binary data in the run/replay commands
+	* misc tweaks+fixes
+	* remove gsdepends
+	* remove all rpc calls to margo.py
+	* remove margo0
+
+## r13.01.20-1
+	**IMPORTANT**
+	this update marks the complete transition of all keybindings away from GsShell.
+	`ctrl+b` `ctrl+dot`,`ctrl+b` `ctrl+dot`,`ctrl+t` and `ctrl+dot`,`ctrl+r`
+	all uses 9o now. for more information about the GsShell replacement 9o please press ctrl+9 and type help
+
+## r13.01.19-2
+	**NOTICE**
+	The transition to 9o has begun. press ctrl+9 or super+9 and type `help` for more details on 9o.
+	9o will evntually completely replace all GoSublime's interaction with the OS' shell.
+	This includes GsShell(ctrl+dot,ctrl+b).
+
+	As of this update, `ctrl+dot`,`ctrl+r` and `ctrl+dot`,`ctrl+t` has been remapped
+
+## r13.01.19-1
+	* impl 9o command history
+
+## r13.01.17-1
+	* add keybindings in 9o for committing autocompletion instead of executing the prompt when auto_complete_commit_on_tab is false
+
+## r13.01.14-1
+	* added pledgie badge http://www.pledgie.com/campaigns/19078
+
+## r13.01.12-1
+
+	**WARNING**
+
+		GoSublime will soon switch to 9o `ctrl+9` or `super+9`.
+		It will replace GsShell `ctrl+dot`,`ctrl+b` (maybe `ctrl+b`).
+		GsShell has reached its EOL and as a result no GsShell specific bugs will be fixed, old or new.
+		The code (gsshell.py) will remain for a little while so if you use code that interacts
+		with it, now is the time to make let me know so necessary features can implemented in 9o
+
+## r13.01.06-1
+	* add two new 9o command `env` and `settings` see 9o `help` for more details
+	* 9o now supports a new scheme `gs.packages` e.g. `ctrl+shft`, left-click on gs.packages://GoSublime/9o.md will open the 9o docs
+
+## r13.01.05-2
+	* added two task aliases to tskill
+		`tskill replay` will kill/cancel the last replay command
+
+		`tskill go` will kill the last go command (go test, etc.). as a consequence,
+			the 9o `go` command now acts like the `replay` command in that kills any previous instance
+
+	* added new setting autosave:
+		controls whether or not pkg files should be automatically saved when necessary
+		(e.g. when running 9o `replay` or `go test` commands)
+
+## r13.01.05-1
+	* impl click-tests. i.e `ctrl+shift`,`left-click` on words that start with Test,Benchmark or Example
+	will run go corresponding test or bench. `ctrl+shift`,`right-click` will do the same but using only the prefix
+	e.g.
+		`ctrl+shift`,`left-click` on `BenchmarkNewFunc` will run only `BenchmarkNew`:
+			`go test -test.run=none -test.bench="^BenchmarkNew$"`
+
+		`ctrl+shift`,`right-click` on `BenchmarkNewFunc` will run all benchmarks:
+			`go test -test.run=none -test.bench="^Benchmark.*"`
+
+## r12.12.29-1
+	* impl 9o tskill command. see 9o(ctrl+9) "help" for more info
+
+## r12.12.27-2
+	* impl `go test` in 9o run and replay
+
+## r12.12.27-1
+	* introducing 9o, the new command-shell. press `ctrl+9` or `super+9` to activate it.
+	  WARNING: in the near future 9o will replace GsShell
+
+## r12.12.26-1
+	* sync gocode: Windows-specific config_dir/config_file implementation.
+
+## r12.12.13-2
+	* add a new setting: `autocomplete_filter_name`
+	you may set this to a regexp which will be used to filter entries in the auto-completion list
+	e.g. `"autocomplete_filter_name": "^autogenerated_"` will prevent any type or function
+	whose name begins with "autogenerated_" from appearing in the auto-completion list
+
+## r12.12.13-1
+	* implement `9 replay` command that will `9 play` (build + run) the current package, after killing any previous instances.
+	Until it goes live, you can override the existing `ctrl+dot`,`ctrl+r` binding or bind it to something else by adding
+	the following key binding to your user key bindings via menu `Preferences > Key Bindings - User`
+
+	{
+		"keys": ["ctrl+.", "ctrl+r"],
+		"command": "gs_commander_open",
+		"args": {"run": ["9", "replay"]},
+		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
+	}
+
 ## r12.12.2-3
 	* setting `margo_cmd` has been removed
 

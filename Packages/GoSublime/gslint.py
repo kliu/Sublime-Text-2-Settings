@@ -1,6 +1,13 @@
-import gscommon as gs, margo, gsq, gsshell
-import sublime, sublime_plugin
-import threading, Queue, time, os, re
+from gosubl import gs
+from gosubl import gsq
+from gosubl import gsshell
+from gosubl import mg9
+import os
+import re
+import sublime
+import sublime_plugin
+import threading
+import time
 
 DOMAIN = 'GsLint'
 CL_DOMAIN = 'GsCompLint'
@@ -25,7 +32,7 @@ class GsLintThread(threading.Thread):
 		self.daemon = True
 		self.sem = threading.Semaphore()
 		self.s = set()
-		self.q = Queue.Queue()
+		self.q = gs.queue.Queue()
 
 	def putq(self, fn):
 		with self.sem:
@@ -47,11 +54,12 @@ class GsLintThread(threading.Thread):
 			fr = ref(fn, False)
 			if fr:
 				reports = {}
-				resp, _ = margo.lint(fn, fr.src)
-				for r in resp:
+				res, _ = mg9.bcall('lint', {'fn': fn, 'src': fr.src})
+				res = gs.dval(res, {})
+				for r in gs.dval(res.get('reports'), []):
 					row = r.get('row', 0)
 					col = r.get('col', 0)
-					msg = r.get('msg', '')
+					msg = r.get('message', '')
 					if row >= 0 and msg:
 						reports[row] = Report(row, col, msg)
 
@@ -173,7 +181,8 @@ def watch():
 def ref(fn, validate=True):
 	with sem:
 		if validate:
-			for fn, fr in file_refs.items():
+			for fn in list(file_refs.keys()):
+				fr = file_refs[fn]
 				if not fr.view.window() or fn != fr.view.file_name():
 					del file_refs[fn]
 		return file_refs.get(fn)
@@ -248,12 +257,9 @@ class GsCompLintCommand(sublime_plugin.TextCommand):
 			file_refs[fn] = FileRef(self.view)
 			gsq.dispatch(CL_DOMAIN, lambda: do_comp_lint(dirname, fn), '')
 
-
 try:
-	init_once
+	th
 except:
-	init_once = True
-
 	th = None
 	sem = threading.Semaphore()
 	file_refs = {}

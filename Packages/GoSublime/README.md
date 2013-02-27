@@ -1,6 +1,8 @@
 GoSublime
 =========
 
+<a href='http://www.pledgie.com/campaigns/19078'><img alt='Click here to lend your support to: GoSublime and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/19078.png?skin_name=chrome' border='0' /></a>
+
 Intro
 -----
 
@@ -11,17 +13,17 @@ Features
 
 * code completion from [Gocode](https://github.com/nsf/gocode)
 * context aware snippets via the code-completion popup to complement the existing SublimeText Go package.
-* sublime build system(ctrl+b) allowing to run any command your shell will accept with some focus(and enhancements) on the `go` command including support for cycling errors with F4/Shift+F4
+* sublime build system(ctrl+b) integrating with GoSublime 9o command prompt
 * lint/syntax check as you type
-* quickly to any syntax error reported (and jump back to where you were before (across files))
+* quickly jump to any syntax error reported (and jump back to where you were before (across files))
 * quickly fmt your source or automatically on save to conform with the Go standards
-* easily create a new go file and run it without needing to save it first (go play)
+* easily create a new go file and run it without needing to save it first (9o `replay`)
 * share your snippets(anything in the loaded file) on play.golang.org
 * list declarations in the current file
 * automtically add/remove package imports
 * quickly jump your import section(automatically goes to the last import) where you can easily edit the pkg alias and return to where you were before
 * go to definition of a package function or constant, etc.
-* show the source(and thus documentation) of a variable without needing change views
+* show the source(and thus documentation) of a variable without needing to change views
 
 Demo
 ----
@@ -45,7 +47,10 @@ Sublime Package Control allows you to easily install or remove GoSublime(and man
 Usage
 -----
 
-Please see USAGE.md for general usage and other tips for effective usage of GoSublime
+Please see [USAGE.md](USAGE.md) and [9o.md](9o.md) for general usage and other tips for effective usage of GoSublime
+
+**NOTE** GoCode is entirely integrated into GoSublime/MarGo. If you see any bugs related to completion,
+assume they are GoSublime's bugs and I will forward bug reports as necessary.
 
 Settings
 --------
@@ -71,4 +76,18 @@ The following letters are used as suffix for entries in the completion list.
 
 * ρ - Packages
 
+
+Copyright, License & Contributors
+=================================
+
+GoSublime and MarGo are released under the MIT license. See [LICENSE.md](LICENSE.md)
+
+GoSublime is the copyrighted work of *The GoSublime Authors* i.e me ([https://github.com/DisposaBoy/GoSublime](DisposaBoy)) and *all* contributors. If you submit a change, be it documentation or code, so long as it's committed to GoSublime's history I consider you a contributor. See [AUTHORS.md](AUTHORS.md) for a list of all the GoSublime authors/contributors.
+
+GoSublime bundles several dependencies, these all reside under the diriectory tree [something_borrowed/](something_borrowed/) and are the copyright of their respective authors.
+
+Supporters
+==========
+
+GoSublime has received support from many kind individuals and as a thank you I've added most to [THANKS.md](THANKS.md) file as a way of saying *Thank You*. Some donors donated anonymously and so are not listed, however, if you donated and either I have not yet sent you an email personally thanking you or you would otherwise like to be added, please don't hesitate to contact me disposaboy@dby.me
 

@@ -38,18 +38,18 @@
 		"command": "gs_fmt_prompt_save_as"
 	},
 	{
-		"caption": "GoSublime: Open shell/build prompt",
-		"command": "gs_shell"
+		"caption": "GoSublime: Run build command",
+		"command": "gs9o_build"
 	},
 	{
-		"caption": "GoSublime: Play/Run (current file only)",
-		"command": "gs_shell",
-		"args": {"run": "go play"}
+		"caption": "GoSublime: Replay current package",
+		"command": "gs9o_open",
+		"args": {"run": ["replay"]}
 	},
 	{
 		"caption": "GoSublime: Share (on play.golang.org)",
-		"command": "gs_shell",
-		"args": {"run": "go share"}
+		"command": "gs9o_open",
+		"args": {"run": ["share"]}
 	},
 	{
 		"caption": "GoSublime: Goto Definition",
@@ -104,22 +104,22 @@
 		"args": { "kill": true }
 	},
 	{
-		"caption": "GoSublime: Activate GsCommander",
-		"command": "gs_commander_open"
+		"caption": "GoSublime: Activate 9o",
+		"command": "gs9o_open"
 	},
 	{
-		"caption": "GoSublime: (GsCommander) open file/url",
-		"command": "gs_commander_open_selection"
+		"caption": "GoSublime: (9o) open file/url",
+		"command": "gs9o_open_selection"
 	},
 	{
-		"caption": "GoSublime: Settings – Default",
+		"caption": "GoSublime: Default Settings",
 		"command": "open_file",
 		"args": {
 			"file": "${packages}/GoSublime/GoSublime.sublime-settings"
 		}
 	},
 	{
-		"caption": "GoSublime: Settings – User",
+		"caption": "GoSublime: User Settings",
 		"command": "open_file",
 		"args": {
 			"file": "${packages}/User/GoSublime.sublime-settings"
@@ -161,7 +161,11 @@
 		}
 	},
 	{
-		"caption": "GoSublime: Open Log File",
+		"caption": "GoSublime: Do a sanity check",
+		"command": "gs_sanity_check"
+	},
+	{
+		"caption": "GoSublime: Open Error Log",
 		"command": "open_file",
 		"args": {
 			"file": "${packages}/User/GoSublime/9/log.txt"

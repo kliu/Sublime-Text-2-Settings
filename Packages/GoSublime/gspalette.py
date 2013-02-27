@@ -1,10 +1,13 @@
-import sublime, sublime_plugin
-import gspatch, margo, gscommon as gs, gslint
-from os.path import dirname, relpath, basename
+from gosubl import gs
+from gosubl import gspatch
+from gosubl import mg9
+from os.path import dirname, basename, relpath
+import gslint
 import re
+import sublime
+import sublime_plugin
 
 DOMAIN = 'GsPalette'
-last_import_path = {}
 
 class Loc(object):
 	def __init__(self, fn, row, col=0):
@@ -97,11 +100,11 @@ class GsPaletteCommand(sublime_plugin.WindowCommand):
 			items.append(item)
 		self.items = []
 
-		def on_done(i):
+		def on_done(i, win):
 			action, args = actions.get(i, (None, None))
 			if i >= 0 and action:
 				action(args)
-		self.window.show_quick_panel(items, on_done)
+		gs.show_quick_panel(items, on_done)
 
 	def add_item(self, item, action=None, args=None):
 		self.items.append((item, action, args))
@@ -119,7 +122,7 @@ class GsPaletteCommand(sublime_plugin.WindowCommand):
 		if not view:
 			return
 
-		last_import = last_import_path.get(view.file_name())
+		last_import = gs.attr('last_import_path.%s' % gs.view_fn(view), '')
 		r = None
 		if last_import:
 			offset = len(last_import) + 2
@@ -209,42 +212,30 @@ class GsPaletteCommand(sublime_plugin.WindowCommand):
 
 			self.do_show_panel()
 
-		margo.call(
-			path='/import_paths',
-			args={
-				'fn': view.file_name(),
-				'src': src,
-			},
-			cb=f,
-			message='fetching pkg import paths'
-		)
+		mg9.import_paths(view.file_name(), src, f)
 
 	def toggle_import(self, a):
-		global last_import_path
-
 		view, decl = a
-		im, err = margo.imports(
+		im, err = mg9.imports(
 			view.file_name(),
 			view.substr(sublime.Region(0, view.size())),
 			[decl]
 		)
+
 		if err:
 			gs.notice(DOMAIN, err)
 		else:
 			src = im.get('src', '')
-			line_ref = im.get('line_ref', 0)
+			line_ref = im.get('lineRef', 0)
 			r = view.full_line(view.text_point(max(0, line_ref-1), 0))
 			if not src or line_ref < 1 or not r:
 				return
 
-			dirty, err = gspatch.merge(view, r.end(), src)
-			if err:
-				gs.notice_undo(DOMAIN, err, view, dirty)
-			elif dirty:
-				if decl.get('add'):
-					last_import_path[view.file_name()] = decl.get('path')
-				else:
-					last_import_path[view.file_name()] = ''
+			view.run_command('gs_patch_imports', {
+				'pos': r.end(),
+				'content': src,
+				'added_path': (decl.get('path') if decl.get('add') else '')
+			})
 
 	def jump_to(self, a):
 		view, loc = a
@@ -256,7 +247,7 @@ class GsPaletteCommand(sublime_plugin.WindowCommand):
 	def palette_declarations(self, view, direct=False):
 		def f(res, err):
 			if err:
-				gs.notice('GsDeclarations', err)
+				gs.notify('GsDeclarations', err)
 			else:
 				decls = res.get('file_decls', [])
 				decls.sort(key=lambda v: v.get('row', 0))
@@ -272,14 +263,4 @@ class GsPaletteCommand(sublime_plugin.WindowCommand):
 
 			self.do_show_panel()
 
-		margo.call(
-			path='/declarations',
-			args={
-				'fn': view.file_name(),
-				'src': view.substr(sublime.Region(0, view.size())),
-			},
-			default={},
-			cb=f,
-			message='fetching file declarations'
-		)
-
+		mg9.declarations(gs.view_fn(view), gs.view_src(view), '', f)

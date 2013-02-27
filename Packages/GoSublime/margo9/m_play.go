@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"go/build"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -55,8 +56,11 @@ func (m *mPlay) Call() (interface{}, string) {
 
 	if m.Cid == "" {
 		m.Cid = "play.auto." + numbers.nextString()
+	} else {
+		killCmd(m.Cid)
 	}
 
+	res := M{}
 	stdErr := bytes.NewBuffer(nil)
 	stdOut := bytes.NewBuffer(nil)
 	runCmd := func(name string, args ...string) (M, error) {
@@ -74,16 +78,28 @@ func (m *mPlay) Call() (interface{}, string) {
 
 		err := c.Run()
 		res := M{
-			"out": stdOut.String(),
-			"err": stdErr.String(),
+			"out": jData(stdOut.Bytes()),
+			"err": jData(stdErr.Bytes()),
 			"dur": time.Now().Sub(start).String(),
 		}
 
 		return res, err
 	}
 
+	if !m.BuildOnly {
+		pkg, err := build.ImportDir(m.Dir, 0)
+		if err != nil {
+			return res, err.Error()
+		}
+
+		if !pkg.IsCommand() {
+			res, err = runCmd("go", "test")
+			return res, errStr(err)
+		}
+	}
+
 	fn := filepath.Join(dir, "gosublime.a.exe")
-	res, err := runCmd("go", "build", "-o", fn)
+	res, err = runCmd("go", "build", "-o", fn)
 	if m.BuildOnly || err != nil {
 		return res, errStr(err)
 	}

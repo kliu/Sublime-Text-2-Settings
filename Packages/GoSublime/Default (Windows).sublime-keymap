@@ -47,13 +47,13 @@
 	},
 	{
 		"keys": ["ctrl+.", "ctrl+b"],
-		"command": "gs_shell",
+		"command": "gs9o_build",
 		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
 	},
 	{
 		"keys": ["ctrl+.", "ctrl+r"],
-		"command": "gs_shell",
-		"args": {"run": "go play"},
+		"command": "gs9o_open",
+		"args": {"run": ["replay"]},
 		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
 	},
 	{
@@ -64,8 +64,8 @@
 	},
 	{
 		"keys": ["ctrl+.", "ctrl+g"],
-		"command": "gs_commander_open_selection",
-		"context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+		"command": "gs9o_open_selection",
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.9o" }]
 	},
 	{
 		"keys": ["ctrl+.", "ctrl+h"],
@@ -116,29 +116,39 @@
 		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
 	},
 	{
-		"keys": ["ctrl+#"],
-		"command": "gs_commander_open"
+		"keys": ["ctrl+9"],
+		"command": "gs9o_open"
 	},
 	{
 		"keys": ["ctrl+space"],
 		"command": "auto_complete",
 		"args": {"disable_auto_insert": true, "api_completions_only": true, "next_completion_if_showing": false},
-		"context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.9o" }]
 	},
 	{
 		"keys": ["enter"],
-		"command": "gs_commander_exec",
-		"context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+		"command": "gs9o_exec",
+		"args": {"save_hist": true},
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.9o" }]
+	},
+	{
+		"keys": ["enter"],
+		"command": "commit_completion",
+		"context": [
+			{ "key": "auto_complete_visible" },
+			{ "key": "setting.auto_complete_commit_on_tab", "operand": false },
+			{ "key": "selector", "operator": "equal", "operand": "text.9o" }
+		]
 	},
 	{
 		"keys": ["ctrl+enter"],
-		"command": "gs_commander_insert_line",
-		"context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+		"command": "gs9o_insert_line",
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.9o" }]
 	},
 	{
 		"keys": ["ctrl+shift+enter"],
-		"command": "gs_commander_insert_line",
+		"command": "gs9o_insert_line",
 		"args": {"after": false},
-		"context": [{ "key": "selector", "operator": "equal", "operand": "text.gscommander" }]
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.9o" }]
 	}
 ]

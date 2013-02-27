@@ -8,6 +8,7 @@ import re
 import json
 import urllib2
 
+
 settings = sublime.load_settings('MarkdownPreview.sublime-settings')
 
 
@@ -22,7 +23,7 @@ class MarkdownPreviewListener(sublime_plugin.EventListener):
     """ update the output html when markdown file has already been converted once """
 
     def on_post_save(self, view):
-        if view.file_name().endswith(('.md', '.markdown', '.mdown')):
+        if view.file_name().endswith(tuple(settings.get('markdown_filetypes', (".md", ".markdown", ".mdown")))):
             temp_file = getTempMarkdownPreviewPath(view)
             if os.path.isfile(temp_file):
                 # reexec markdown conversion
@@ -45,8 +46,9 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
         config_parser = settings.get('parser')
         config_css = settings.get('css')
 
+        styles = ''
         if config_css and config_css != 'default':
-            return "<link href='%s' rel='stylesheet' type='text/css'>" % config_css
+            styles += u"<link href='%s' rel='stylesheet' type='text/css'>" % config_css
         else:
             css_filename = 'markdown.css'
             if config_parser and config_parser == 'github':
@@ -59,7 +61,18 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
                 if not os.path.isfile(css_path):
                     sublime.error_message('markdown.css file not found!')
                     raise Exception("markdown.css file not found!")
-            styles = u"<style>%s</style>" % open(css_path, 'r').read().decode('utf-8')
+            styles += u"<style>%s</style>" % open(css_path, 'r').read().decode('utf-8')
+
+        if settings.get('allow_css_overrides'):
+            filename = self.view.file_name()
+            filetypes = settings.get('markdown_filetypes')
+
+            for filetype in filetypes:
+                if filename.endswith(filetype):
+                    css_filename = filename.rpartition(filetype)[0] + '.css'
+                if (os.path.isfile(css_filename)):
+                    styles += u"<style>%s</style>" % open(css_filename, 'r').read().decode('utf-8')
+
         return styles
 
     def postprocessor(self, html):
@@ -83,6 +96,8 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
             encoding = 'utf-8'
         elif encoding == 'Western (Windows 1252)':
             encoding = 'windows-1252'
+        elif encoding == 'UTF-8 with BOM':
+            encoding = 'utf-8'
         contents = self.view.substr(region)
 
         config_parser = settings.get('parser')
@@ -107,6 +122,12 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
         else:
             # convert the markdown
             markdown_html = markdown2.markdown(contents, extras=['footnotes', 'toc', 'fenced-code-blocks', 'cuddled-lists'])
+            toc_html = markdown_html.toc_html
+            if toc_html:
+                toc_markers = ['[toc]', '[TOC]', '<!--TOC-->']
+                for marker in toc_markers:
+                    markdown_html = markdown_html.replace(marker, toc_html)
+
             # postprocess the html
             markdown_html = self.postprocessor(markdown_html)
 
@@ -149,6 +170,7 @@ class MarkdownPreviewCommand(sublime_plugin.TextCommand):
             # build the html
             html_contents = markdown_html
             new_view = self.view.window().new_file()
+            new_view.set_scratch(True)
             new_edit = new_view.begin_edit()
             new_view.insert(new_edit, 0, html_contents)
             new_view.end_edit(new_edit)

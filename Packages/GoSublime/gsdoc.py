@@ -1,6 +1,10 @@
-import gscommon as gs, margo, gsq
-import sublime, sublime_plugin
-import os, re
+from gosubl import gs
+from gosubl import gsq
+from gosubl import mg9
+import os
+import re
+import sublime
+import sublime_plugin
 
 DOMAIN = 'GsDoc'
 
@@ -62,18 +66,7 @@ class GsDocCommand(sublime_plugin.TextCommand):
 					doc = '\n\n\n'.join(s).strip()
 			self.show_output(doc or "// %s: no docs found" % DOMAIN)
 
-		margo.call(
-			path='/doc',
-			args={
-				'fn': view.file_name(),
-				'src': src,
-				'offset': pt,
-			},
-			default=[],
-			cb=f,
-			message='fetching docs'
-		)
-
+		mg9.doc(view.file_name(), src, pt, f)
 
 class GsBrowseDeclarationsCommand(sublime_plugin.WindowCommand):
 	def run(self, dir=''):
@@ -101,13 +94,7 @@ class GsBrowseDeclarationsCommand(sublime_plugin.WindowCommand):
 				else:
 					gs.show_quick_panel([['', 'No source directories found']])
 
-			margo.call(
-				path='/pkgdirs',
-				args={},
-				default={},
-				cb=f,
-				message='fetching pkg dirs'
-			)
+			mg9.pkg_dirs(f)
 
 	def present_current(self):
 		pkg_dir = ''
@@ -129,7 +116,7 @@ class GsBrowseDeclarationsCommand(sublime_plugin.WindowCommand):
 
 		def f(res, err):
 			if err:
-				gs.notice(DOMAIN, err)
+				gs.notify(DOMAIN, err)
 				return
 
 			decls = res.get('file_decls', [])
@@ -153,32 +140,22 @@ class GsBrowseDeclarationsCommand(sublime_plugin.WindowCommand):
 			for d in decls:
 				ents.append(d['ent'])
 
-			def cb(i):
+			def cb(i, win):
 				if i >= 0:
 					d = decls[i]
 					gs.focus(d['fn'], d['row'], d['col'], win)
 
 			if ents:
-				win.show_quick_panel(ents, cb)
+				gs.show_quick_panel(ents, cb)
 			else:
-				win.show_quick_panel([['', 'No declarations found']], lambda x: None)
+				gs.show_quick_panel([['', 'No declarations found']])
 
-		margo.call(
-			path='/declarations',
-			args={
-				'fn': vfn,
-				'src': src,
-				'pkg_dir': pkg_dir,
-			},
-			default={},
-			cb=f,
-			message='fetching pkg declarations'
-		)
+		mg9.declarations(vfn, src, pkg_dir, f)
 
 def handle_pkgdirs_res(res):
 	m = {}
-	for root, dirs in res.iteritems():
-		for dir, fn in dirs.iteritems():
+	for root, dirs in res.items():
+		for dir, fn in dirs.items():
 			if not m.get(dir):
 				m[dir] = fn
 	ents = m.keys()
@@ -202,13 +179,7 @@ class GsBrowsePackagesCommand(sublime_plugin.WindowCommand):
 			else:
 				gs.show_quick_panel([['', 'No source directories found']])
 
-		margo.call(
-			path='/pkgdirs',
-			args={},
-			default={},
-			cb=f,
-			message='fetching pkg dirs'
-		)
+		mg9.pkg_dirs(f)
 
 def ext_filter(pathname, basename, ext):
 	if not ext:
@@ -262,5 +233,3 @@ class GsBrowseFilesCommand(sublime_plugin.WindowCommand):
 			view = self.window.active_view()
 			dir = gs.basedir_or_cwd(view.file_name() if view is not None else None)
 		gsq.dispatch('*', lambda: show_pkgfiles(dir), 'scanning directory for package files')
-
-

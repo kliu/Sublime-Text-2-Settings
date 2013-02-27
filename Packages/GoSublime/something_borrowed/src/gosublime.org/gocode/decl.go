@@ -58,6 +58,9 @@ const (
 	// means that the decl is a part of the range statement
 	// its type is inferred in a special way
 	decl_rangevar
+
+	// for preventing infinite recursions and loops in type inference code
+	decl_visited
 )
 
 //-------------------------------------------------------------------------
@@ -348,6 +351,10 @@ func (other *decl) deep_copy() *decl {
 	return d
 }
 
+func (d *decl) clear_visited() {
+	d.flags &^= decl_visited
+}
+
 func (d *decl) expand_or_replace(other *decl) {
 	// expand only if it's a methods stub, otherwise simply copy
 	if d.class != decl_methods_stub && other.class != decl_methods_stub {
@@ -415,18 +422,36 @@ func check_for_builtin_funcs(typ *ast.Ident, c *ast.CallExpr, scope *scope) (ast
 		if t, ok := c.Fun.(*ast.Ident); ok {
 			switch t.Name {
 			case "new":
-				e := new(ast.StarExpr)
-				e.X = c.Args[0]
-				return e, scope
+				if len(c.Args) > 0 {
+					e := new(ast.StarExpr)
+					e.X = c.Args[0]
+					return e, scope
+				}
 			case "make":
-				return c.Args[0], scope
+				if len(c.Args) > 0 {
+					return c.Args[0], scope
+				}
 			case "append":
-				return c.Args[0], scope
-			case "cmplx":
+				if len(c.Args) > 0 {
+					t, scope, _ := infer_type(c.Args[0], scope, -1)
+					return t, scope
+				}
+			case "complex":
+				// TODO: fix it
 				return ast.NewIdent("complex"), g_universe_scope
 			case "closed":
 				return ast.NewIdent("bool"), g_universe_scope
+			case "cap":
+				return ast.NewIdent("int"), g_universe_scope
+			case "copy":
+				return ast.NewIdent("int"), g_universe_scope
+			case "len":
+				return ast.NewIdent("int"), g_universe_scope
 			}
+			// TODO:
+			// func recover() interface{}
+			// func imag(c ComplexType) FloatType
+			// func real(c ComplexType) FloatType
 		}
 	}
 	return nil, nil
@@ -884,6 +909,13 @@ func (d *decl) infer_type() (ast.Expr, *scope) {
 		return d.typ, d.scope
 	}
 
+	// prevent loops
+	if d.flags&decl_visited != 0 {
+		return nil, nil
+	}
+	d.flags |= decl_visited
+	defer d.clear_visited()
+
 	var scope *scope
 	d.typ, scope, _ = infer_type(d.value, d.scope, d.value_index)
 	return d.typ, scope
@@ -1304,7 +1336,7 @@ func init() {
 	add_func("append", "func([]type, ...type) []type")
 	add_func("cap", "func(container) int")
 	add_func("close", "func(channel)")
-	add_func("complex", "func(real, imag)")
+	add_func("complex", "func(real, imag) complex")
 	add_func("copy", "func(dst, src)")
 	add_func("delete", "func(map[typeA]typeB, typeA)")
 	add_func("imag", "func(complex)")

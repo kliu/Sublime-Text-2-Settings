@@ -19,3 +19,158 @@ MarGo9: Missing environment variable(s): GOPATH
 ** 2012-12-12 13:38:27.700559 **:
 MarGo9: Missing environment variable(s): GOPATH
 --------------------------------
+
+** 2012-12-12 16:52:36.386744 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2012-12-17 14:53:20.911955 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2012-12-17 15:34:50.323073 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2012-12-29 20:31:27.198349 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-04 10:57:27.811204 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-14 14:23:53.194731 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-15 11:10:40.015146 **:
+MarGo9: Cannot load env vars: Decode Error: No JSON object could be decoded
+env output: /bin/bash: gosublime.r13.01.14-1.margo9.exe: command not found
+--------------------------------
+
+** 2013-01-15 11:10:40.016155 **:
+MarGo9: Missing environment variable(s): GOROOT, GOPATH
+--------------------------------
+
+** 2013-01-18 11:12:19.279629 **:
+MarGo9: Cannot load env vars: Decode Error: No JSON object could be decoded
+env output: /bin/bash: gosublime.r13.01.17-1.margo9.exe: command not found
+--------------------------------
+
+** 2013-01-18 11:12:19.310962 **:
+MarGo9: Missing environment variable(s): GOROOT, GOPATH
+--------------------------------
+
+** 2013-01-19 14:22:56.394727 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-19 16:32:09.377894 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-20 21:49:35.699170 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-21 12:39:50.546846 **:
+MarGo9: Cannot load env vars: Decode Error: No JSON object could be decoded
+env output: /bin/bash: gosublime.r13.01.20-1.margo9.exe: command not found
+--------------------------------
+
+** 2013-01-21 12:39:50.548613 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-21 15:20:47.987255 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-21 21:45:35.918546 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-22 08:17:56.387540 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-22 12:30:39.770152 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-22 14:31:05.873250 **:
+MarGo9: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-22 14:33:07.919533 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-26 15:03:06.538646 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-27 13:48:47.821881 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-27 21:26:43.738725 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-28 10:45:56.199767 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-28 17:40:25.686992 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-28 18:36:34.277220 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-01-29 11:03:23.308378 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-02 00:42:58.484426 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-05 14:00:05.765911 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-06 18:48:26.222000 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-06 21:49:28.781372 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-06 22:24:57.471550 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-07 00:20:05.407066 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-07 17:42:03.978374 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-21 19:06:58.624856 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-21 19:07:21.018012 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-02-26 19:28:48.735055 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------

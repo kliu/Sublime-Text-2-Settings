@@ -1,12 +1,12 @@
-import sublime
-import sublime_plugin
+from gosubl import gs
+from gosubl import mg9
+from os.path import basename
+from os.path import dirname
 import json
 import os
 import re
-import gscommon as gs
-import mg9
-from os.path import basename
-from os.path import dirname
+import sublime
+import sublime_plugin
 
 AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
 REASONABLE_PKGNAME_PAT = re.compile(r'^\w+$')
@@ -19,7 +19,7 @@ SNIPPET_VAR_PAT = re.compile(r'\$\{([a-zA-Z]\w*)\}')
 
 def snippet_match(ctx, m):
 	try:
-		for k,p in m.get('match', {}).iteritems():
+		for k,p in m.get('match', {}).items():
 			q = ctx.get(k, '')
 			if p and gs.is_a_string(p):
 				if not re.search(p, str(q)):
@@ -42,7 +42,7 @@ def resolve_snippets(ctx):
 	cl = set()
 	types = [''] if ctx.get('local') else ctx.get('types')
 	vars = {}
-	for k,v in ctx.iteritems():
+	for k,v in ctx.items():
 		if gs.is_a_string(v):
 			vars[k] = v
 
@@ -60,7 +60,14 @@ def resolve_snippets(ctx):
 						if text and value:
 							for typename in types:
 								vars['typename'] = typename
-								vars['typename_abbr'] = typename[0].lower() if typename else ''
+								if typename:
+									if len(typename) > 1 and typename[0].islower() and typename[1].isupper():
+										vars['typename_abbr'] = typename[1].lower()
+									else:
+										vars['typename_abbr'] = typename[0].lower()
+								else:
+									vars['typename_abbr'] = ''
+
 								txt, ttl, val = expand_snippet_vars(vars, text, title, value)
 								s = u'%s\t%s \u0282' % (txt, ttl)
 								cl.add((s, val))
@@ -99,9 +106,14 @@ class GoSublime(sublime_plugin.EventListener):
 			default_pkgname = ''
 
 		r = view.find('package\s+(\w+)', 0)
+		pkgname = view.substr(view.word(r.end())) if r else ''
+
+		if not default_pkgname:
+			default_pkgname = pkgname if pkgname else 'main'
+
 		ctx = {
 			'global': True,
-			'pkgname': view.substr(view.word(r.end())) if r else '',
+			'pkgname': pkgname,
 			'types': types or [''],
 			'has_types': len(types) > 0,
 			'default_pkgname': default_pkgname,
@@ -109,7 +121,7 @@ class GoSublime(sublime_plugin.EventListener):
 		}
 		show_snippets = gs.setting('autocomplete_snippets', True) is True
 
-		if not ctx.get('pkgname'):
+		if not pkgname:
 			return (resolve_snippets(ctx), AC_OPTS) if show_snippets else ([], AC_OPTS)
 
 		# gocode is case-sesitive so push the location back to the 'dot' so it gives
@@ -146,7 +158,18 @@ class GoSublime(sublime_plugin.EventListener):
 		if err:
 			gs.notice(DOMAIN, err)
 
+		name_fx = None
+		name_fx_pat = gs.setting('autocomplete_filter_name')
+		if name_fx_pat:
+			try:
+				name_fx = re.compile(name_fx_pat)
+			except Exception as ex:
+				gs.notice(DOMAIN, 'Cannot filter completions: %s' % ex)
+
 		for ent in ents:
+			if name_fx and name_fx.search(ent['name']):
+				continue
+
 			tn = ent['type']
 			cn = ent['class']
 			nm = ent['name']
@@ -362,4 +385,3 @@ class GsShowCallTip(sublime_plugin.TextCommand):
 
 			s = '// %s %s\n%s' % (c['name'], c['class'], c['type'])
 			self.show_hint(s)
-

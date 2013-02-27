@@ -1,7 +1,7 @@
+from gosubl import gs
+import gstest
 import sublime
 import sublime_plugin
-import gscommands
-import gscommon as gs
 
 DOMAIN = 'GsEV'
 
@@ -11,6 +11,22 @@ class EV(sublime_plugin.EventListener):
 
 	def on_activated(self, view):
 		sublime.set_timeout(lambda: do_sync_active_view(view), 0)
+
+class GsOnLeftClick(sublime_plugin.TextCommand):
+	def run(self, edit):
+		view = self.view
+		if gs.is_go_source_view(view):
+			if not gstest.handle_action(view, 'left-click'):
+				view.run_command('gs_doc', {"mode": "goto"})
+		elif view.score_selector(gs.sel(view).begin(), "text.9o") > 0:
+			view.window().run_command("gs9o_open_selection")
+
+class GsOnRightClick(sublime_plugin.TextCommand):
+	def run(self, edit):
+		view = self.view
+		if gs.is_go_source_view(view):
+			if not gstest.handle_action(view, 'right-click'):
+				view.run_command('gs_doc', {"mode": "hint"})
 
 def do_post_save(view):
 	if not gs.is_pkg_view(view):
@@ -41,4 +57,3 @@ def do_sync_active_view(view):
 		if psettings and gs.is_a(psettings, {}):
 			m = gs.mirror_settings(psettings)
 		gs.set_attr('last_active_project_settings', gs.dval(m, {}))
-
