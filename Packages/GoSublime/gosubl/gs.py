@@ -69,6 +69,7 @@ _default_settings = {
 	"fn_exclude_prefixes": [".", "_"],
 	"autosave": True,
 	"build_command": [],
+	"lint_filter": [],
 }
 _settings = copy.copy(_default_settings)
 
@@ -707,9 +708,7 @@ def checked(domain, k):
 
 def sel(view, i=0):
 	try:
-		# view.sel() is a sublime.RegionSet. we want actual a python list behaviour :|
-		l = [r for r in view.sel()]
-		return l[i]
+		return view.sel()[i]
 	except Exception:
 		return sublime.Region(0, 0)
 
@@ -733,17 +732,19 @@ except:
 	st2_status_message = sublime.status_message
 	sublime.status_message = status_message
 
-	sched_sm_cb()
-
 	DEVNULL = open(os.devnull, 'w')
+	LOGFILE = DEVNULL
+
+def gs_init():
+	global LOGFILE
 	try:
 		LOGFILE = open(home_path('log.txt'), 'a+')
 	except Exception as ex:
 		LOGFILE = DEVNULL
 		notice(NAME, 'Cannot create log file. Remote(margo) and persistent logging will be disabled. Error: %s' % ex)
 
-def gs_init():
-	# init
+	sched_sm_cb()
+
 	settings_obj().clear_on_change("GoSublime.settings")
 	settings_obj().add_on_change("GoSublime.settings", sync_settings)
 	sync_settings()
