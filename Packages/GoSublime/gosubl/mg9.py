@@ -48,6 +48,7 @@ def sanity_check(env={}):
 
 	return [
 		('version', about.VERSION),
+		('platform', about.PLATFORM),
 		('~bin', '%s' % gs.home_path('bin')),
 		('MarGo', '%s (%s)' % _tp(_margo_bin())),
 		('GOROOT', '%s' % env.get('GOROOT', ns)),
@@ -164,9 +165,10 @@ def install(aso_tokens, force_install):
 	report_x = lambda: gs.println("GoSublime: Exception while cleaning up old binaries", gs.traceback())
 	try:
 		d = gs.home_path('bin')
+		old_pat = re.compile(r'^gosublime.r\d{2}.\d{2}.\d{2}-\d+.margo.exe$')
 		for fn in os.listdir(d):
 			try:
-				if fn != about.MARGO_EXE and fn.startswith(('gosublime', 'gocode', 'margo')):
+				if fn != about.MARGO_EXE and (about.MARGO_EXE_PAT.match(fn) or old_pat.match(fn)):
 					fn = os.path.join(d, fn)
 					gs.println("GoSublime: removing old binary: %s" % fn)
 					os.remove(fn)
