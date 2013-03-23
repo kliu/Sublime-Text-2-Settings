@@ -2,3 +2,4 @@ Settings/*
 Backup/*
 *.cache
 *.tm*.cache
+*.so
