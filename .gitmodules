@@ -1,3 +1,6 @@
 [submodule "Packages/Theme - Soda"]
 	path = Packages/Theme - Soda
 	url = https://github.com/buymeasoda/soda-theme.git
+[submodule "Packages/SublimeLogHelper"]
+	path = Packages/SublimeLogHelper
+	url = git@github.com:kliu/SublimeLogHelper.git

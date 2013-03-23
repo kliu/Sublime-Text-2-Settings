@@ -1,4 +1,4 @@
-# Install
+# Usage
 
 ```shell
 cd ~/Library/Application\ Support/
@@ -11,6 +11,6 @@ mv Sublime-Text-2-Settings/ Sublime\ Text\ 2/
 
 cd Sublime\ Text\ 2/
 
-git submodule update
+git submodule update --init --recursive
 ```
 

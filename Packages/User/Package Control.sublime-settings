@@ -3,6 +3,7 @@
 	"installed_packages":
 	[
 		"Alignment",
+		"DashDoc",
 		"Display Functions (Java)",
 		"FileDiffs",
 		"Gist",

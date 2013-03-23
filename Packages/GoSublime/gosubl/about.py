@@ -1,2 +1,4 @@
-VERSION = 'r13.03.03-1'
-MARGO_EXE = 'gosublime.%s.margo.exe' % VERSION
+import sublime
+
+VERSION = 'r13.03.20-1'
+MARGO_EXE = 'gosublime.margo.%s.%s-%s.exe' % (VERSION, sublime.platform(), sublime.arch())

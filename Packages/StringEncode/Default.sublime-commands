@@ -8,12 +8,28 @@
         "command": "html_deentitize"
     },
     {
+        "caption": "StringEncode: XML Entitize",
+        "command": "xml_entitize"
+    },
+    {
+        "caption": "StringEncode: XML Deentitize",
+        "command": "xml_deentitize"
+    },
+    {
         "caption": "StringEncode: Safe HTML Entitize",
         "command": "safe_html_entitize"
     },
     {
         "caption": "StringEncode: Safe HTML Deentitize",
         "command": "safe_html_deentitize"
+    },
+    {
+        "caption": "StringEncode: JSON Escape",
+        "command": "json_escape"
+    },
+    {
+        "caption": "StringEncode: JSON Unescape",
+        "command": "json_unescape"
     },
     {
         "caption": "StringEncode: URL Encode",
