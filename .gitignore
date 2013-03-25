@@ -3,3 +3,4 @@ Backup/*
 *.cache
 *.tm*.cache
 *.so
+*.exe
