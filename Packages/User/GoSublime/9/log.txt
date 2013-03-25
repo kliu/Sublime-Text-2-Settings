@@ -330,3 +330,27 @@ MarGo: Missing environment variable(s): GOPATH
 ** 2013-03-25 10:46:37.877720 **:
 MarGo: Installation aborted. Install command already called for GoSublime r13.03.23-2.
 --------------------------------
+
+** 2013-03-25 11:57:18.246609 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-03-25 12:31:10.751422 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-03-25 14:41:53.403227 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-03-25 21:30:19.405817 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-03-25 22:05:13.524937 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
+
+** 2013-03-25 22:43:02.376607 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
