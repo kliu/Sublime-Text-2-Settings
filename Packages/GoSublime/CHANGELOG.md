@@ -3,6 +3,20 @@ GoSublime Changes
 
 Note: you may need to restart Sublime Text after GoSublime updates
 
+## 13.03.28-2
+	* more python hacks
+
+## 13.03.28-1
+	* make the sanity check output more verbose
+	* add key bindings for:
+		(replace ctrl with super on os x)
+		README.md: ctrl+dot,ctrl+1
+		USAGE.md: ctrl+dot,ctrl+2
+		run sanity check: ctrl+dot,ctrl+3
+
+## r13.03.25-1
+	* abort blocking calls(completion, fmt) early if the install stage isn't set to "done"
+
 ## r13.03.24-3
 	* wait for mg9.install to finish before attempting to send any request to margo.
 		fixes a false-positive error about the mg binary being missing before installtion completes
