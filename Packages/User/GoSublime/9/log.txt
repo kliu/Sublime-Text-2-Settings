@@ -378,3 +378,7 @@ MarGo: Missing environment variable(s): GOPATH
 ** 2013-03-28 18:03:12.750825 **:
 MarGo: Missing environment variable(s): GOPATH
 --------------------------------
+
+** 2013-03-28 22:00:10.524043 **:
+MarGo: Missing environment variable(s): GOPATH
+--------------------------------
